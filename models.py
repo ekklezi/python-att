@@ -41,3 +41,18 @@ class Transaction:
 
     def __repr__(self):
         return f"<Transaction: {self.transaction_type} {self.amount} RUB in '{self.category}' on {self.date}>"
+
+class Car:
+    def __init__(
+        self,
+        id: int,
+        model: str,
+        year: int,
+        mileage: int,
+        price: float,
+    ):
+        self.id = id
+        self.model = model.strip()
+        self.year = year
+        self.mileage = mileage
+        self.price = price

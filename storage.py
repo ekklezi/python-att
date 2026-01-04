@@ -1,69 +1,98 @@
 # storage.py
 import os
 import csv
-from models import Transaction
+from models import Transaction, Car
+import sqlite3
 
 # Путь к файлу данных
 DATA_DIR = "data"
-CSV_FILE = os.path.join(DATA_DIR, "transactions.csv")
+DB_FILE = os.path.join(DATA_DIR, "app.db")
+conn = sqlite3.connect(DB_FILE)
+cur = conn.cursor()
 
-def ensure_data_dir():
+def init_storage():
     """Создаёт папку 'data', если она не существует."""
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
 
-def save_transactions(transactions):
-    """
-    Сохраняет список объектов Transaction в CSV-файл.
-    Добавляет новые записи в конец файла.
-    """
-    if not transactions:
-        return  # нечего сохранять
+    cur.execute('''
+    CREATE TABLE IF NOT EXISTS cars (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        model TEXT,
+        year INTEGER,
+        mileage INTEGER,
+        price REAL
+    )
+    ''')
 
-    ensure_data_dir()
-    file_exists = os.path.isfile(CSV_FILE)
+    cur.execute('''
+    CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        car_id INTEGER,
+        amount REAL,
+        date TEXT,
+        description TEXT,
+        category TEXT
+    )
+    ''')
 
+def save_transaction(transaction:Transaction):
     try:
-        with open(CSV_FILE, mode='a', newline='', encoding='utf-8') as f:
-            fieldnames = ["amount", "category", "date", "description", "transaction_type"]
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-
-            # Записываем заголовок только при создании файла
-            if not file_exists:
-                writer.writeheader()
-
-            # Записываем каждую транзакцию
-            for t in transactions:
-                writer.writerow(t.to_dict())
-
+        cur.execute("INSERT INTO transactions (car_id, amount, date, description, category) VALUES (?, ?, ?, ?, ?)", transaction.to_dict())
+        conn.commit()
     except Exception as e:
         print(f"Ошибка при сохранении данных: {e}")
 
 def load_transactions():
     """
-    Загружает все операции из CSV-файла и возвращает список объектов Transaction.
+    Загружает транзакции
     """
     transactions = []
 
-    if not os.path.exists(CSV_FILE):
-        return transactions  # первый запуск — файла ещё нет
-
     try:
-        with open(CSV_FILE, mode='r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Преобразуем строку CSV в объект Transaction
-                t = Transaction(
-                    amount=float(row["amount"]),
-                    category=row["category"],
-                    date=row["date"],
-                    description=row.get("description", ""),
-                    transaction_type=row["transaction_type"]
-                )
-                transactions.append(t)
+        cur.execute("SELECT * FROM transactions ORDER BY id")
+        rows = cur.fetchall()
+        for row in rows:
+            # Преобразуем строку CSV в объект Transaction
+            t = Transaction(
+                amount=float(row["amount"]),
+                category=row["category"],
+                date=row["date"],
+                description=row.get("description", ""),
+                transaction_type=row["transaction_type"]
+            )
+            transactions.append(t)
 
     except Exception as e:
         print(f"Ошибка при загрузке данных: {e}")
         return []  # возвращаем пустой список при ошибке
 
     return transactions
+
+def save_car(car):
+    try:
+        cur.execute("INSERT INTO cars (model, year, mileage, price) VALUES (?, ?, ?, ?)", car)
+        conn.commit()
+    except Exception as e:
+        print(f"Ошибка при сохранении данных: {e}")
+
+def load_cars():
+    cars = []
+    try:
+        cur.execute("SELECT * FROM cars ORDER BY id")
+        rows = cur.fetchall()
+        for row in rows:
+            car = Car(row[0], row[1], row[2], row[3], row[4])
+            cars.append(car)
+    except Exception as e:
+        print(f"Ошибка при получении данных: {e}")
+
+    return cars
+
+def delete_car(car_id):
+    print(car_id)
+    try:
+        cur.execute("DELETE FROM cars WHERE id = ?", (car_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"Ошибка при удалении данных: {e}")
