@@ -2,24 +2,24 @@
 import datetime
 from typing import Optional
 
-class Transaction:
+class Expense:
     def __init__(
         self,
+        car_id: int,
         amount: float,
         category: str,
         date: str,
+        mileage: float,
         description: str = "",
-        transaction_type: str = "expense"  # expense / income
     ):
-        if transaction_type not in ("expense", "income"):
-            raise ValueError("transaction_type must be 'expense' or 'income'")
         if amount <= 0:
             raise ValueError("Amount must be positive")
+        self.car_id = car_id
         self.amount = amount
         self.category = category.strip()
         self.date = self._validate_date(date)
         self.description = description.strip()
-        self.transaction_type = transaction_type
+        self.mileage = mileage
 
     @staticmethod
     def _validate_date(date_str: str) -> str:
@@ -32,15 +32,16 @@ class Transaction:
 
     def to_dict(self):
         return {
+            "car_id": self.car_id,
             "amount": self.amount,
-            "category": self.category,
             "date": self.date,
+            "category": self.category,
             "description": self.description,
-            "transaction_type": self.transaction_type
+            "mileage": self.mileage
         }
 
     def __repr__(self):
-        return f"<Transaction: {self.transaction_type} {self.amount} RUB in '{self.category}' on {self.date}>"
+        return f"<Expense: {self.amount} RUB in '{self.category}' on {self.date}>"
 
 class Car:
     def __init__(

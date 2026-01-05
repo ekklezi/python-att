@@ -1,13 +1,14 @@
 # storage.py
 import os
 import csv
-from models import Transaction, Car
+from models import Expense, Car
 import sqlite3
 
 # Путь к файлу данных
 DATA_DIR = "data"
 DB_FILE = os.path.join(DATA_DIR, "app.db")
 conn = sqlite3.connect(DB_FILE)
+conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 
 def init_storage():
@@ -26,48 +27,54 @@ def init_storage():
     ''')
 
     cur.execute('''
-    CREATE TABLE IF NOT EXISTS transactions (
+    CREATE TABLE IF NOT EXISTS expenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         car_id INTEGER,
         amount REAL,
         date TEXT,
         description TEXT,
-        category TEXT
+        category TEXT,
+        mileage REAL
     )
     ''')
 
-def save_transaction(transaction:Transaction):
+def save_expense(expense:Expense):
     try:
-        cur.execute("INSERT INTO transactions (car_id, amount, date, description, category) VALUES (?, ?, ?, ?, ?)", transaction.to_dict())
+        cur.execute(
+            '''INSERT INTO expenses (car_id, amount, date, category, description, mileage) 
+                    VALUES (:car_id, :amount, :date, :category, :description, :mileage)''',
+            expense.to_dict())
+
         conn.commit()
     except Exception as e:
         print(f"Ошибка при сохранении данных: {e}")
 
-def load_transactions():
+def load_expenses(car_id:int):
     """
     Загружает транзакции
     """
-    transactions = []
+    expenses = []
 
     try:
-        cur.execute("SELECT * FROM transactions ORDER BY id")
+        cur.execute("SELECT car_id, amount, category, date, description, mileage FROM expenses WHERE car_id = :car_id", {"car_id": car_id})
         rows = cur.fetchall()
         for row in rows:
             # Преобразуем строку CSV в объект Transaction
-            t = Transaction(
+            t = Expense(
+                car_id=row["car_id"],
                 amount=float(row["amount"]),
                 category=row["category"],
                 date=row["date"],
-                description=row.get("description", ""),
-                transaction_type=row["transaction_type"]
+                description=row["description"],
+                mileage=row["mileage"]
             )
-            transactions.append(t)
+            expenses.append(t)
 
     except Exception as e:
         print(f"Ошибка при загрузке данных: {e}")
         return []  # возвращаем пустой список при ошибке
-
-    return transactions
+    print(expenses)
+    return expenses
 
 def save_car(car):
     try:
