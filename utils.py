@@ -65,8 +65,13 @@ def validate_category(category_str: str) -> str:
     if not category_str:
         raise ValueError("Категория не может быть пустой")
 
-    # Опционально: запретить спецсимволы (оставить только буквы, цифры, пробелы, дефисы)
-    if re.search(r"[^а-яА-Яa-zA-Z0-9\s\-]", category_str):
-        raise ValueError("Категория может содержать только буквы, цифры, пробелы и дефисы")
-
     return category_str
+
+def validate_year(year_str: str) -> int:
+    year_pattern = re.compile(r'^[1-2]\d{3}$')
+    if not year_pattern.fullmatch(year_str):
+        raise ValueError("Год указан в некорректном формате")
+    year = int(year_str)
+    if year < 1885:
+        raise ValueError("Первый автомобиль появился в 1885 г.")
+    return year

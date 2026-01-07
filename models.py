@@ -1,10 +1,10 @@
 # models.py
 import datetime
-from typing import Optional
 
 class Expense:
     def __init__(
         self,
+        id:int,
         car_id: int,
         amount: float,
         category: str,
@@ -14,6 +14,7 @@ class Expense:
     ):
         if amount <= 0:
             raise ValueError("Amount must be positive")
+        self.id = id
         self.car_id = car_id
         self.amount = amount
         self.category = category.strip()
@@ -49,7 +50,7 @@ class Car:
         id: int,
         model: str,
         year: int,
-        mileage: int,
+        mileage: float,
         price: float,
     ):
         self.id = id
@@ -57,3 +58,28 @@ class Car:
         self.year = year
         self.mileage = mileage
         self.price = price
+        self.expenses = []
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "model": self.model,
+            "mileage": self.mileage,
+            "price": self.price,
+            "year": self.year,
+        }
+
+    def calculate_expense(self):
+        current_mileage = sum_amount = 0
+        for expense in self.expenses:
+            sum_amount += expense.amount
+            if expense.mileage > current_mileage:
+                current_mileage = expense.mileage
+
+        return sum_amount / (current_mileage - self.mileage)
+
+    def __repr__(self):
+        car_repr = f"А/М: {self.model} {self.year} г. \nПробег на момент покупки: {self.mileage:.1f} км"
+        if self.expenses:
+            car_repr += f"\nСтоимость содержания: {self.calculate_expense():.2f} руб/км"
+        return car_repr

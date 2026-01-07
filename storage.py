@@ -21,7 +21,7 @@ def init_storage():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         model TEXT,
         year INTEGER,
-        mileage INTEGER,
+        mileage REAL,
         price REAL
     )
     ''')
@@ -50,17 +50,14 @@ def save_expense(expense:Expense):
         print(f"Ошибка при сохранении данных: {e}")
 
 def load_expenses(car_id:int):
-    """
-    Загружает транзакции
-    """
     expenses = []
 
     try:
-        cur.execute("SELECT car_id, amount, category, date, description, mileage FROM expenses WHERE car_id = :car_id", {"car_id": car_id})
+        cur.execute("SELECT id, car_id, amount, category, date, description, mileage FROM expenses WHERE car_id = :car_id ORDER BY mileage ASC", {"car_id": car_id})
         rows = cur.fetchall()
         for row in rows:
-            # Преобразуем строку CSV в объект Transaction
             t = Expense(
+                id=row['id'],
                 car_id=row["car_id"],
                 amount=float(row["amount"]),
                 category=row["category"],
@@ -73,12 +70,13 @@ def load_expenses(car_id:int):
     except Exception as e:
         print(f"Ошибка при загрузке данных: {e}")
         return []  # возвращаем пустой список при ошибке
-    print(expenses)
     return expenses
 
 def save_car(car):
+    print(car)
+    print(car.to_dict())
     try:
-        cur.execute("INSERT INTO cars (model, year, mileage, price) VALUES (?, ?, ?, ?)", car)
+        cur.execute("INSERT INTO cars (model, year, mileage, price) VALUES (:model, :year, :mileage, :price)", car.to_dict())
         conn.commit()
     except Exception as e:
         print(f"Ошибка при сохранении данных: {e}")
@@ -86,20 +84,33 @@ def save_car(car):
 def load_cars():
     cars = []
     try:
-        cur.execute("SELECT * FROM cars ORDER BY id")
+        cur.execute("SELECT id, model, year, mileage, price FROM cars ORDER BY id")
         rows = cur.fetchall()
         for row in rows:
-            car = Car(row[0], row[1], row[2], row[3], row[4])
+            car = Car(
+                id=row['id'],
+                model=row["model"],
+                year=row["year"],
+                mileage=row["mileage"],
+                price=row["price"]
+            )
             cars.append(car)
     except Exception as e:
         print(f"Ошибка при получении данных: {e}")
 
     return cars
 
-def delete_car(car_id):
-    print(car_id)
+def delete_car(car_id:int):
     try:
         cur.execute("DELETE FROM cars WHERE id = ?", (car_id,))
+        cur.execute("DELETE FROM expenses WHERE car_id = ?", (car_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"Ошибка при удалении данных: {e}")
+
+def delete_expense(expense_id:int):
+    try:
+        cur.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
         conn.commit()
     except Exception as e:
         print(f"Ошибка при удалении данных: {e}")
