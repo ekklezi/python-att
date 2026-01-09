@@ -5,6 +5,7 @@ from models import Expense, Car
 from storage import save_expense, load_expenses, save_car, load_cars, delete_car, delete_expense
 from utils import validate_amount, validate_date, validate_year
 from datetime import datetime
+from analytics import show_expenses_categories, show_expenses_by_year
 
 class CarExpensesApp:
     def __init__(self, root):
@@ -75,7 +76,7 @@ class CarExpensesApp:
                 t.id,
                 f"{t.amount:.2f}",
                 t.category,
-                t.date,
+                datetime.strptime(t.date, '%Y-%m-%d').strftime('%d.%m.%Y'),
                 t.mileage,
                 t.description
             ))
@@ -197,6 +198,13 @@ class CarExpensesApp:
 
             button_remove_expense = ttk.Button(input_frame, text="Удалить трату", command=lambda car_id=car.id: self.remove_expense(car_id))
             button_remove_expense.grid(row=1, column=2)
+
+            button_show_expenses_categ = ttk.Button(input_frame, text="Затраты по категориям", command=lambda car_id=car.id: show_expenses_categories(car_id))
+            button_show_expenses_categ.grid(row=1, column=3)
+
+            button_show_expenses_categ = ttk.Button(input_frame, text="Затраты по годам",
+                                                    command=lambda car_id=car.id: show_expenses_by_year(car_id))
+            button_show_expenses_categ.grid(row=1, column=4)
 
             self.tab_control.add(tab, text=f"{car.model} {car.year}")
             self.tab_control.pack(expand=1, fill="both")

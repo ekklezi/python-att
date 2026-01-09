@@ -1,6 +1,6 @@
 # utils.py
 import re
-
+from datetime import datetime
 
 def validate_amount(amount_str: str) -> float:
     """
@@ -44,7 +44,6 @@ def validate_date(date_str: str) -> str:
         raise ValueError("Дата должна быть в формате ГГГГ-ММ-ДД (например, 2025-12-23)")
 
     # Дополнительная проверка: реальная дата (например, не 2025-99-99)
-    from datetime import datetime
     try:
         datetime.strptime(date_str, "%Y-%m-%d")
     except ValueError:
@@ -69,9 +68,12 @@ def validate_category(category_str: str) -> str:
 
 def validate_year(year_str: str) -> int:
     year_pattern = re.compile(r'^[1-2]\d{3}$')
+    now = int(datetime.now().strftime("%Y"))
     if not year_pattern.fullmatch(year_str):
         raise ValueError("Год указан в некорректном формате")
     year = int(year_str)
     if year < 1885:
         raise ValueError("Первый автомобиль появился в 1885 г.")
+    if year > now:
+        raise ValueError("Год выпуска не может быть больше текущего")
     return year

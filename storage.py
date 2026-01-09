@@ -49,12 +49,14 @@ def save_expense(expense:Expense):
     except Exception as e:
         print(f"Ошибка при сохранении данных: {e}")
 
-def load_expenses(car_id:int):
+def load_expenses(car_id:int, raw:bool=False):
     expenses = []
 
     try:
         cur.execute("SELECT id, car_id, amount, category, date, description, mileage FROM expenses WHERE car_id = :car_id ORDER BY mileage ASC", {"car_id": car_id})
         rows = cur.fetchall()
+        if raw:
+            return rows
         for row in rows:
             t = Expense(
                 id=row['id'],
