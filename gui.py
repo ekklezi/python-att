@@ -5,7 +5,7 @@ from models import Expense, Car
 from storage import save_expense, load_expenses, save_car, load_cars, delete_car, delete_expense
 from utils import validate_amount, validate_date
 from datetime import datetime
-from analytics import show_expenses_categories, show_expenses_by_year
+from analytics import show_expenses_categories, show_expenses_by_year, export_to_excel
 
 class CarExpensesApp:
     def __init__(self, root):
@@ -223,6 +223,11 @@ class CarExpensesApp:
             button_show_expenses_categ = ttk.Button(input_frame, text="Затраты по годам",
                                                     command=lambda car_id=car.id: show_expenses_by_year(car_id))
             button_show_expenses_categ.grid(row=1, column=4)
+
+
+            button_export = ttk.Button(input_frame, text="Выгрузить в excel",
+                                                    command=lambda car_id=car.id: export_to_excel(car_id))
+            button_export.grid(row=1, column=5)
 
             self.tab_control.add(tab, text=f"{car.model} {car.year}")
             self.tab_control.pack(expand=1, fill="both")

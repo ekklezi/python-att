@@ -1,6 +1,7 @@
 import pandas as pd
 from storage import load_expenses, load_cars
 import matplotlib.pyplot as plt
+import os
 
 def autopct_format(pct, values):
     """
@@ -31,11 +32,18 @@ def show_expenses_by_year(car_id):
                                    columns=['id', 'car_id', 'amount', 'category', 'date', 'description', 'mileage'])
     df['Year'] = pd.to_datetime(df['date']).dt.year
     grouped = df.groupby('Year', as_index=False)['amount'].sum()
-    print(grouped['Year'])
     plt.bar(grouped['Year'], grouped['amount'])
     plt.xticks(grouped['Year'].to_numpy())
-    plt.title("Расходны на авто по годам")
+    plt.title("Расходы на авто по годам")
     plt.xlabel("Год")
     plt.ylabel("Сумма расходов, ₽")
     plt.show()
+
+def export_to_excel(car_id):
+    DATA_DIR = "data"
+    EXCEL_FILE = os.path.join(DATA_DIR, "expenses.xlsx")
+    expenses = load_expenses(car_id, True)
+    df = pd.DataFrame.from_records(expenses,
+                                   columns=['id', 'car_id', 'amount', 'category', 'date', 'description', 'mileage'])
+    df.to_excel(EXCEL_FILE, sheet_name='Expenses')
 
