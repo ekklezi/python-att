@@ -19,6 +19,9 @@ class CarExpensesApp:
             self.refresh_car_expenses_table(list(self.cars_frames.keys())[0])
 
     def create_widgets(self):
+        """
+        Создает базовые общие элементы интерфейса, привязывает методы к событиям
+        """
         # === Верхняя панель: форма ввода ===
         input_frame = ttk.LabelFrame(self.root, padding=(10, 10))
         input_frame.pack(fill="x", padx=10, pady=10)
@@ -64,6 +67,9 @@ class CarExpensesApp:
             messagebox.showerror("Ошибка ввода", f"Не удалось добавить операцию:\n{e}")
 
     def refresh_car_expenses_table(self, car_id):
+        """
+        Формирует таблицу расходов по А/М
+        """
         car_frame = self.cars_frames.get(car_id)
 
         tree = car_frame['tree']
@@ -89,6 +95,9 @@ class CarExpensesApp:
         car_frame['heading'].configure(text=car_frame['car_item'])
 
     def show_transaction_popup(self, car_id):
+        """
+        Создает модальное окно добавления расхода
+        """
         self.expense_popup = tk.Toplevel(self.root)
         self.expense_popup.title("Добавить расход")
         self.expense_popup.geometry("340x200")
@@ -132,6 +141,9 @@ class CarExpensesApp:
         self.root.wait_window(self.expense_popup)
 
     def show_add_car_popup(self):
+        """
+        Создает модальное окно добавления А/М
+        """
         self.add_car_popup = tk.Toplevel(self.root)
         self.add_car_popup.title("Добавить авто")
         self.add_car_popup.geometry("320x180")
@@ -163,6 +175,9 @@ class CarExpensesApp:
         self.root.wait_window(self.add_car_popup)
 
     def add_car(self):
+        """
+        Добавляет А/М
+        """
         car = Car(
             id=0,
             model=self.car_model_var.get(),
@@ -176,6 +191,9 @@ class CarExpensesApp:
         self.add_car_popup.destroy()
 
     def refresh_cars_tabs(self):
+        """
+        Перезагружает список табов с данными об А/М
+        """
         self.cars_frames = {}
         for item in self.tab_control.winfo_children():
             self.tab_control.forget(item)
@@ -246,10 +264,16 @@ class CarExpensesApp:
             scrollbar.pack(side="right", fill="y")
 
     def remove_car(self, car_id):
+        """
+        Удаляет А/М
+        """
         delete_car(car_id)
         self.refresh_cars_tabs()
 
     def on_car_select(self, event):
+        """
+        Обрабатывает событие выбора А/М (переключение табов)
+        """
         frame = event.widget.select()
         current_tab_index = self.tab_control.index(frame)
         for car_id, car_frame in self.cars_frames.items():
@@ -257,6 +281,9 @@ class CarExpensesApp:
                 self.refresh_car_expenses_table(car_id)
 
     def remove_expense(self, car_id):
+        """
+        Удаляет трату
+        """
         current_tree = self.cars_frames[car_id]['tree']
         selected = current_tree.selection()
         if not selected:

@@ -3,11 +3,17 @@ from storage import load_expenses, load_cars
 import matplotlib.pyplot as plt
 
 def autopct_format(pct, values):
+    """
+    Форматирует процентоное значение barPlot для показа реального числа
+    """
     total = sum(values)
     value = int(pct / 100 * total)
     return f'{value} руб.\n({pct:.1f}%)'
 
 def show_expenses_categories(car_id):
+    """
+    Формирует диаграмму расходов по категориям для выбранного А/М
+    """
     expenses = load_expenses(car_id, True)
     df = pd.DataFrame.from_records(expenses, columns=['id', 'car_id', 'amount', 'category', 'date', 'description', 'mileage'])
     sum = df.groupby('category', as_index=False)['amount'].sum()
@@ -17,6 +23,9 @@ def show_expenses_categories(car_id):
     plt.show()
 
 def show_expenses_by_year(car_id):
+    """
+    Формирует график расходов по годам для выбранного А/М
+    """
     expenses = load_expenses(car_id, True)
     df = pd.DataFrame.from_records(expenses,
                                    columns=['id', 'car_id', 'amount', 'category', 'date', 'description', 'mileage'])
