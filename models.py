@@ -14,7 +14,7 @@ class Expense:
         description: str = "",
     ):
         if amount <= 0:
-            raise ValueError("Amount must be positive")
+            raise ValueError("Число должно быть положительным")
         self.id = id
         self.car_id = car_id
         self.amount = amount
@@ -71,6 +71,7 @@ class Car:
         }
 
     def calculate_expense(self):
+        """Высчитывает стоимость содержания в рублях на километр (руб/км)"""
         current_mileage = sum_amount = 0
         for expense in self.expenses:
             sum_amount += expense.amount
@@ -87,6 +88,9 @@ class Car:
 
     @staticmethod
     def _validate_year(year_str: str|int) -> int:
+        """
+        Валидирует год выпуска А/М. Принимает строку либо целое число
+        """
         year_pattern = re.compile(r'^[1-2]\d{3}$')
         now = int(datetime.now().strftime("%Y"))
         if not year_pattern.fullmatch(str(year_str)):

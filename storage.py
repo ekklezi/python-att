@@ -12,7 +12,10 @@ conn.row_factory = sqlite3.Row
 cur = conn.cursor()
 
 def init_storage():
-    """Создаёт папку 'data', если она не существует."""
+    """
+    Создаёт папку 'data', если она не существует.
+    Создает таблицы БД, если не существуют
+    """
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
 
@@ -39,6 +42,9 @@ def init_storage():
     ''')
 
 def save_expense(expense:Expense):
+    """
+    Сохраняет в БД строку расхода
+    """
     try:
         cur.execute(
             '''INSERT INTO expenses (car_id, amount, date, category, description, mileage) 
@@ -50,8 +56,11 @@ def save_expense(expense:Expense):
         print(f"Ошибка при сохранении данных: {e}")
 
 def load_expenses(car_id:int, raw:bool=False):
+    """
+    Получает из БД строки расходов по ID А/М
+    Возвращает список объектов Expense, при передаче raw = true возвращает сырые данные для DataFrame
+    """
     expenses = []
-
     try:
         cur.execute("SELECT id, car_id, amount, category, date, description, mileage FROM expenses WHERE car_id = :car_id ORDER BY mileage ASC", {"car_id": car_id})
         rows = cur.fetchall()
@@ -75,8 +84,9 @@ def load_expenses(car_id:int, raw:bool=False):
     return expenses
 
 def save_car(car):
-    print(car)
-    print(car.to_dict())
+    """
+    Сохраняет в БД строку с данными А/М
+    """
     try:
         cur.execute("INSERT INTO cars (model, year, mileage, price) VALUES (:model, :year, :mileage, :price)", car.to_dict())
         conn.commit()
@@ -84,6 +94,10 @@ def save_car(car):
         print(f"Ошибка при сохранении данных: {e}")
 
 def load_cars():
+    """
+    Получает из БД строки расходов по ID А/М
+    Возвращает список объектов Car
+    """
     cars = []
     try:
         cur.execute("SELECT id, model, year, mileage, price FROM cars ORDER BY id")
@@ -103,6 +117,10 @@ def load_cars():
     return cars
 
 def delete_car(car_id:int):
+    """
+    Удаляет из БД строку данных об А/М по переданному car_id
+    Так же удаляет связанные строки расходов (по ключу car_id)
+    """
     try:
         cur.execute("DELETE FROM cars WHERE id = ?", (car_id,))
         cur.execute("DELETE FROM expenses WHERE car_id = ?", (car_id,))
@@ -111,6 +129,9 @@ def delete_car(car_id:int):
         print(f"Ошибка при удалении данных: {e}")
 
 def delete_expense(expense_id:int):
+    """
+    Удаляет из БД строку данных о расходе по переданному id
+    """
     try:
         cur.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
         conn.commit()
