@@ -1,6 +1,5 @@
 # storage.py
 import os
-import csv
 from models import Expense, Car
 import sqlite3
 
