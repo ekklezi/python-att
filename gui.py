@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from models import Expense, Car
 from storage import save_expense, load_expenses, save_car, load_cars, delete_car, delete_expense
-from utils import validate_amount, validate_date, validate_year
+from utils import validate_amount, validate_date
 from datetime import datetime
 from analytics import show_expenses_categories, show_expenses_by_year
 
@@ -166,7 +166,7 @@ class CarExpensesApp:
         car = Car(
             id=0,
             model=self.car_model_var.get(),
-            year=validate_year(self.car_year_var.get()),
+            year=self.car_year_var.get(),
             mileage=validate_amount(self.car_mileage_var.get()),
             price=validate_amount(self.car_price_var.get()),
         )

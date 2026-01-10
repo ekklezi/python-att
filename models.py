@@ -1,5 +1,6 @@
 # models.py
-import datetime
+from datetime import datetime
+import re
 
 class Expense:
     def __init__(
@@ -26,7 +27,7 @@ class Expense:
     def _validate_date(date_str: str) -> str:
         """Принимает дату в формате YYYY-MM-DD"""
         try:
-            datetime.datetime.strptime(date_str, "%Y-%m-%d")
+            datetime.strptime(date_str, "%Y-%m-%d")
             return date_str
         except ValueError:
             raise ValueError("Date must be in YYYY-MM-DD format")
@@ -42,20 +43,20 @@ class Expense:
         }
 
     def __repr__(self):
-        return f"<Expense: {self.amount} RUB in '{self.category}' on {self.date}>"
+        return f"Expense: {self.amount} RUB in '{self.category}' on {self.date}"
 
 class Car:
     def __init__(
         self,
         id: int,
         model: str,
-        year: int,
+        year: str|int,
         mileage: float,
         price: float,
     ):
         self.id = id
         self.model = model.strip()
-        self.year = year
+        self.year = self._validate_year(year)
         self.mileage = mileage
         self.price = price
         self.expenses = []
@@ -83,3 +84,16 @@ class Car:
         if self.expenses:
             car_repr += f"\nСтоимость содержания: {self.calculate_expense():.2f} руб/км"
         return car_repr
+
+    @staticmethod
+    def _validate_year(year_str: str|int) -> int:
+        year_pattern = re.compile(r'^[1-2]\d{3}$')
+        now = int(datetime.now().strftime("%Y"))
+        if not year_pattern.fullmatch(str(year_str)):
+            raise ValueError("Год указан в некорректном формате")
+        year = int(year_str)
+        if year < 1885:
+            raise ValueError("Первый автомобиль появился в 1885 г.")
+        if year > now:
+            raise ValueError("Год выпуска не может быть больше текущего")
+        return year

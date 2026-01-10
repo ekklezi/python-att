@@ -65,15 +65,3 @@ def validate_category(category_str: str) -> str:
         raise ValueError("Категория не может быть пустой")
 
     return category_str
-
-def validate_year(year_str: str) -> int:
-    year_pattern = re.compile(r'^[1-2]\d{3}$')
-    now = int(datetime.now().strftime("%Y"))
-    if not year_pattern.fullmatch(year_str):
-        raise ValueError("Год указан в некорректном формате")
-    year = int(year_str)
-    if year < 1885:
-        raise ValueError("Первый автомобиль появился в 1885 г.")
-    if year > now:
-        raise ValueError("Год выпуска не может быть больше текущего")
-    return year

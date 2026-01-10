@@ -98,7 +98,7 @@ def load_cars():
             )
             cars.append(car)
     except Exception as e:
-        print(f"Ошибка при получении данных: {e}")
+        print(f"Ошибка при получении данных: 123{e}")
 
     return cars
 

@@ -1,13 +1,11 @@
 import pandas as pd
 from storage import load_expenses, load_cars
 import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
 
 def autopct_format(pct, values):
-    total = sum(values)  # Total sum of the dataset
-    value = int(pct / 100 * total)  # Calculate raw value
-    return f'{value} руб.\n({pct:.1f}%)'  # Format: $Value\n(Percentage%)
+    total = sum(values)
+    value = int(pct / 100 * total)
+    return f'{value} руб.\n({pct:.1f}%)'
 
 def show_expenses_categories(car_id):
     expenses = load_expenses(car_id, True)
